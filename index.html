@@ -3,9 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>SUBBHU MOVIES | Cinematic Neon Streaming</title>
+  <title>SUBBHU MOVIES | Next-Gen Cinematic Neon Streaming</title>
   
-  <!-- Supabase CDN Client -->
+  <!-- SEO & Social OpenGraph Metadata -->
+  <meta name="description" content="Watch high-definition open-source restored cinema, sci-fi epics, and animations with neon visuals.">
+  <meta name="theme-color" content="#ff1e42">
+  <meta property="og:title" content="SUBBHU MOVIES - 4K Neon Streaming">
+  <meta property="og:description" content="Cinematic streaming experience on mobile with glassmorphic design and zero lag.">
+  <meta property="og:type" content="website">
+  <link rel="manifest" href="manifest.json">
+
+  <!-- Supabase Client -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
@@ -32,7 +40,7 @@
       padding: 0;
       box-sizing: border-box;
       -webkit-tap-highlight-color: transparent;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     }
 
     body {
@@ -44,7 +52,6 @@
       position: relative;
     }
 
-    /* Ambient Background Light Engine */
     #particle-canvas {
       position: fixed;
       inset: 0;
@@ -78,7 +85,6 @@
       100% { transform: translate(-20px, 30px) scale(0.95); }
     }
 
-    /* Header Nav */
     header {
       position: sticky;
       top: 0;
@@ -89,7 +95,6 @@
       padding: 14px 20px;
       background: rgba(5, 5, 8, 0.88);
       backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
       border-bottom: 1px solid var(--glass-border);
     }
     .brand-logo {
@@ -100,13 +105,12 @@
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       text-shadow: 0 0 25px rgba(255, 30, 66, 0.6);
-      text-decoration: none;
       cursor: pointer;
     }
     .header-actions {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
     }
     .icon-btn {
       background: rgba(255, 255, 255, 0.08);
@@ -119,15 +123,12 @@
       justify-content: center;
       cursor: pointer;
       color: #fff;
-      transition: all 0.2s ease;
     }
     .icon-btn:active {
       transform: scale(0.92);
       border-color: var(--accent-cyan);
-      box-shadow: var(--glow-cyan);
     }
 
-    /* Expandable Search Input */
     .search-wrap {
       position: relative;
       z-index: 99;
@@ -160,11 +161,10 @@
       font-size: 1.3rem;
     }
 
-    /* Views Framework */
     .view-page { display: none; position: relative; z-index: 2; }
     .view-page.active { display: block; }
 
-    /* Hero Cinematic Stage */
+    /* Hero Slider */
     .hero-slider-container {
       position: relative;
       height: 62vh;
@@ -206,7 +206,6 @@
       border-radius: 6px;
       margin-bottom: 8px;
       box-shadow: var(--glow-red);
-      letter-spacing: 1px;
     }
     .hero-title {
       font-size: 2.2rem;
@@ -284,7 +283,7 @@
       box-shadow: var(--glow-cyan);
     }
 
-    /* Category Filter Pills */
+    /* Filter Pills */
     .pills-container {
       display: flex;
       gap: 10px;
@@ -311,7 +310,7 @@
       box-shadow: var(--glow-cyan);
     }
 
-    /* Sections and Horizontal Rows */
+    /* Rows */
     .section { padding: 20px 0 6px 20px; }
     .section-head {
       display: flex;
@@ -346,7 +345,7 @@
     }
     .movie-row::-webkit-scrollbar { display: none; }
 
-    /* Movie Cards */
+    /* Cards */
     .card {
       flex: 0 0 145px;
       background: var(--card-bg);
@@ -418,7 +417,6 @@
       inset: 0;
       background: rgba(0, 0, 0, 0.92);
       backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
       z-index: 2000;
       display: none;
       align-items: center;
@@ -456,7 +454,6 @@
       cursor: pointer;
     }
     
-    /* Player & Custom Controls */
     .video-viewport {
       width: 100%;
       background: #000;
@@ -487,15 +484,9 @@
       cursor: pointer;
     }
 
-    /* Modal Details & Review Section */
     .modal-body-scroll {
       padding: 16px 20px;
       overflow-y: auto;
-    }
-    .details-row {
-      display: flex;
-      gap: 14px;
-      margin-bottom: 16px;
     }
     .details-meta {
       font-size: 0.85rem;
@@ -516,7 +507,7 @@
       font-size: 0.82rem;
     }
 
-    /* Profile Card & Inputs */
+    /* Profile Card */
     .profile-card {
       margin: 20px;
       padding: 24px;
@@ -554,7 +545,7 @@
       box-shadow: var(--glow-cyan);
     }
 
-    /* Bottom Navigation Bar */
+    /* Bottom Navigation */
     .bottom-nav {
       position: fixed;
       bottom: 0;
@@ -563,7 +554,6 @@
       height: 66px;
       background: rgba(8, 8, 12, 0.94);
       backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
       border-top: 1px solid var(--glass-border);
       display: flex;
       justify-content: space-around;
@@ -620,7 +610,7 @@
 </head>
 <body>
 
-  <!-- Particle Background Engine -->
+  <!-- Floating Particles Canvas -->
   <canvas id="particle-canvas"></canvas>
   <div class="ambient-glow-wrap">
     <div class="ambient-orb orb-1"></div>
@@ -632,6 +622,9 @@
   <header>
     <a class="brand-logo" onclick="switchTab('home')">SUBBHU MOVIES</a>
     <div class="header-actions">
+      <button class="icon-btn" onclick="openAdminModal()" title="Admin Studio">
+        ⚙️
+      </button>
       <button class="icon-btn" onclick="toggleSearch()" aria-label="Search">
         <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
       </button>
@@ -750,6 +743,30 @@
     </div>
   </div>
 
+  <!-- Protected Admin Studio Modal -->
+  <div class="modal" id="adminModal" onclick="if(event.target === this) closeAdminModal()">
+    <div class="modal-box">
+      <div class="modal-head">
+        <span class="modal-title">Creator Studio (Admin Panel)</span>
+        <button class="modal-close" onclick="closeAdminModal()">&times;</button>
+      </div>
+      <div class="modal-body-scroll">
+        <input type="password" id="adminPassKey" class="input-field" placeholder="Admin Passkey (ADMIN2026)">
+        <div id="adminForm" style="display:none;">
+          <h4 style="margin:12px 0 8px;">Upload Legal Movie / Short Film</h4>
+          <input type="text" id="addTitle" class="input-field" placeholder="Movie Title (e.g., Cosmos Dream)">
+          <input type="text" id="addGenre" class="input-field" placeholder="Genre (e.g., Sci-Fi, Drama)">
+          <input type="text" id="addPoster" class="input-field" placeholder="Poster Image URL">
+          <input type="text" id="addBackdrop" class="input-field" placeholder="Backdrop Image URL">
+          <input type="text" id="addVideo" class="input-field" placeholder="Direct MP4 Video Stream URL">
+          <input type="text" id="addDesc" class="input-field" placeholder="Short Synopsis">
+          <button class="btn-neon" style="width:100%;" onclick="submitNewMovie()">Publish to Catalog</button>
+        </div>
+        <button class="btn-glass" id="verifyAdminBtn" style="width:100%;margin-top:8px;" onclick="verifyAdmin()">Unlock Studio</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Master Player & Details Modal -->
   <div class="modal" id="videoModal" onclick="if(event.target === this) closePlayer()">
     <div class="modal-box">
@@ -769,9 +786,7 @@
 
       <!-- Details & Reviews Scroll Area -->
       <div class="modal-body-scroll">
-        <div class="details-row">
-          <div class="details-meta" id="modalDetailsText"></div>
-        </div>
+        <div class="details-meta" id="modalDetailsText"></div>
 
         <!-- Rating & Review Form -->
         <div class="reviews-box">
@@ -888,31 +903,10 @@
       }
     ];
 
-    // Fetch dynamic movies from Supabase if online
-    async function syncMoviesFromSupabase() {
-      if (!sb) return;
-      try {
-        const { data, error } = await sb.from('movies').select('*');
-        if (!error && data && data.length > 0) {
-          MOVIES = data.map(d => ({
-            id: d.id,
-            title: d.title,
-            genre: d.language || 'Cinema',
-            year: d.release_year || 2026,
-            rating: d.rating || '8.5',
-            quality: d.quality || 'HD',
-            duration: d.duration || 'Feature',
-            director: d.director || 'Curated',
-            desc: d.description || '',
-            poster: d.poster_url,
-            backdrop: d.backdrop_url,
-            videoUrl: d.video_url,
-            trailerUrl: d.trailer_url || d.video_url
-          }));
-          initHeroSlider();
-          renderRows(MOVIES);
-        }
-      } catch (err) {}
+    // Local Storage dynamic additions
+    const localCustomMovies = JSON.parse(localStorage.getItem('subbhu_custom_movies') || '[]');
+    if (localCustomMovies.length > 0) {
+      MOVIES.push(...localCustomMovies);
     }
 
     // --- NAVIGATION TAB SWITCHER ---
@@ -1188,6 +1182,64 @@
       toast("Review submitted!");
     }
 
+    // --- ADMIN STUDIO PANEL ---
+    function openAdminModal() {
+      document.getElementById('adminModal').classList.add('active');
+    }
+    function closeAdminModal() {
+      document.getElementById('adminModal').classList.remove('active');
+    }
+    function verifyAdmin() {
+      const pass = document.getElementById('adminPassKey').value;
+      if (pass === 'ADMIN2026') {
+        document.getElementById('adminForm').style.display = 'block';
+        document.getElementById('verifyAdminBtn').style.display = 'none';
+        document.getElementById('adminPassKey').style.display = 'none';
+        toast("Studio Unlocked: Ready to Add Content");
+      } else {
+        toast("Incorrect Passkey!");
+      }
+    }
+    function submitNewMovie() {
+      const title = document.getElementById('addTitle').value.trim();
+      const genre = document.getElementById('addGenre').value.trim();
+      const poster = document.getElementById('addPoster').value.trim();
+      const backdrop = document.getElementById('addBackdrop').value.trim();
+      const video = document.getElementById('addVideo').value.trim();
+      const desc = document.getElementById('addDesc').value.trim();
+
+      if (!title || !poster || !video) {
+        return toast("Title, Poster URL & Video URL are required!");
+      }
+
+      const newMovie = {
+        id: Date.now(),
+        title: title,
+        genre: genre || "Cinema",
+        year: 2026,
+        rating: "9.0",
+        quality: "4K UHD",
+        duration: "Restored",
+        director: "Subbhu Studio",
+        desc: desc || "Premium user published film.",
+        poster: poster,
+        backdrop: backdrop || poster,
+        videoUrl: video,
+        trailerUrl: video
+      };
+
+      let localCustom = JSON.parse(localStorage.getItem('subbhu_custom_movies') || '[]');
+      localCustom.push(newMovie);
+      localStorage.setItem('subbhu_custom_movies', JSON.stringify(localCustom));
+
+      MOVIES.push(newMovie);
+      currentFilteredMovies = [...MOVIES];
+      renderRows(MOVIES);
+      initHeroSlider();
+      closeAdminModal();
+      toast(`Published "${title}" to your catalog!`);
+    }
+
     // --- NATIVE SHARE ---
     function shareMovie() {
       const m = MOVIES[currentHeroIndex];
@@ -1214,7 +1266,7 @@
         document.getElementById('authActive').style.display = 'block';
       } else {
         document.getElementById('userGreeting').textContent = "Account & Profile";
-        document.getElementById('userSubtext').textContent = "Sign in to sync your favorites across devices";
+        document.getElementById('userSubtext').textContent = "Sign in with Supabase to sync your history & ratings";
         document.getElementById('authForms').style.display = 'block';
         document.getElementById('authActive').style.display = 'none';
       }
@@ -1227,7 +1279,7 @@
 
       const { data, error } = await sb.auth.signInWithPassword({ email, password });
       if (error) {
-        toast("Login failed: " + error.message);
+        toast("Login: " + error.message);
       } else {
         toast("Signed in successfully!");
         checkAuthUser();
@@ -1243,7 +1295,7 @@
       if (error) {
         toast("Registration: " + error.message);
       } else {
-        toast("Account created! Check email if confirmation is needed.");
+        toast("Account created! Verify email if confirmation is enabled.");
       }
     }
 
@@ -1307,13 +1359,19 @@
       draw();
     }
 
+    // --- PWA SERVICE WORKER REGISTRATION ---
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./service-worker.js').catch(() => {});
+      });
+    }
+
     // --- INITIALIZE APPLICATION ---
     window.addEventListener('DOMContentLoaded', () => {
       initHeroSlider();
       renderRows(MOVIES);
       initCanvasParticles();
       checkAuthUser();
-      syncMoviesFromSupabase();
     });
   </script>
 </body>
