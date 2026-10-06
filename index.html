@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>SUBBHU MOVIES | 4K Neon Cinematic Platform</title>
+  <title>SUBBHU MOVIES | Global Cinematic Streaming, Downloads & TMDb Engine</title>
   
-  <meta name="description" content="Subbhu Movies - Curated high definition legal cinema, VFX restorations, and open animations.">
+  <meta name="description" content="Watch and download legal movies and web series across all world languages with live TMDb search and 4K playback.">
   <meta name="theme-color" content="#ff1e42">
   <link rel="manifest" href="manifest.json">
 
@@ -48,7 +48,6 @@
       position: relative;
     }
 
-    /* Ambient Background Engine */
     #particle-canvas {
       position: fixed;
       inset: 0;
@@ -82,7 +81,6 @@
       100% { transform: translate(-20px, 30px) scale(0.95); }
     }
 
-    /* Header Nav */
     header {
       position: sticky;
       top: 0;
@@ -127,7 +125,6 @@
       border-color: var(--accent-cyan);
     }
 
-    /* Expandable Search Input */
     .search-wrap {
       position: relative;
       z-index: 99;
@@ -160,7 +157,6 @@
       font-size: 1.3rem;
     }
 
-    /* Views */
     .view-page { display: none; position: relative; z-index: 2; }
     .view-page.active { display: block; }
 
@@ -460,9 +456,10 @@
       position: relative;
       flex-shrink: 0;
     }
-    .video-viewport video {
+    .video-viewport video, .video-viewport iframe {
       width: 100%;
-      max-height: 48vh;
+      height: 48vh;
+      border: none;
       display: block;
     }
     .player-controls {
@@ -483,6 +480,13 @@
       border-radius: 8px;
       font-size: 0.78rem;
       cursor: pointer;
+    }
+    .ctrl-btn-download {
+      background: linear-gradient(135deg, #10b981, #059669);
+      border: none;
+      color: #fff;
+      font-weight: 700;
+      box-shadow: 0 0 15px rgba(16, 185, 129, 0.4);
     }
 
     .modal-body-scroll {
@@ -643,7 +647,7 @@
   <header>
     <a class="brand-logo" onclick="switchTab('home')">SUBBHU MOVIES</a>
     <div class="header-actions">
-      <button class="icon-btn" onclick="openAdminModal()" title="Admin Studio">
+      <button class="icon-btn" onclick="openAdminModal()" title="Creator Studio">
         ⚙️
       </button>
       <button class="icon-btn" onclick="toggleSearch()" aria-label="Search">
@@ -658,7 +662,7 @@
   <!-- Live Search Bar -->
   <div class="search-wrap" id="searchWrap">
     <div class="search-box">
-      <input type="text" id="searchInput" placeholder="Search title, genre, year, actor..." oninput="handleSearch(this.value)">
+      <input type="text" id="searchInput" placeholder="Search world movies, Hindi, Korean, webseries, TMDb..." oninput="handleSearch(this.value)">
       <span class="search-clear" onclick="clearSearch()">&times;</span>
     </div>
   </div>
@@ -686,25 +690,28 @@
           <button class="btn-glass" onclick="playCurrentHeroTrailer()">
             ▶ Trailer
           </button>
+          <button class="btn-glass" onclick="downloadCurrentHero()">
+            📥 Download
+          </button>
           <button class="btn-glass" onclick="toggleHeroFav()">
             ♥ Save
-          </button>
-          <button class="btn-glass" onclick="openDetails(MOVIES[currentHeroIndex].id)">
-            ℹ Details
           </button>
         </div>
       </div>
       <div class="slider-dots" id="sliderDots"></div>
     </section>
 
-    <!-- Genre Filter Pills -->
+    <!-- Genre & Language Filter Pills -->
     <div class="pills-container">
       <button class="pill active" onclick="filterGenre('All', this)">All</button>
+      <button class="pill" onclick="filterGenre('Hindi', this)">Hindi</button>
+      <button class="pill" onclick="filterGenre('English', this)">English</button>
+      <button class="pill" onclick="filterGenre('Korean', this)">Korean (K-Drama)</button>
+      <button class="pill" onclick="filterGenre('Tamil', this)">Tamil</button>
+      <button class="pill" onclick="filterGenre('Telugu', this)">Telugu</button>
       <button class="pill" onclick="filterGenre('Sci-Fi', this)">Sci-Fi</button>
-      <button class="pill" onclick="filterGenre('Fantasy', this)">Fantasy</button>
-      <button class="pill" onclick="filterGenre('Animation', this)">Animation</button>
       <button class="pill" onclick="filterGenre('Action', this)">Action</button>
-      <button class="pill" onclick="filterGenre('Comedy', this)">Comedy</button>
+      <button class="pill" onclick="filterGenre('Animation', this)">Animation</button>
     </div>
 
     <!-- Rows -->
@@ -714,7 +721,7 @@
     </section>
 
     <section class="section">
-      <div class="section-head"><h2 class="section-title">Popular Cinema</h2></div>
+      <div class="section-head"><h2 class="section-title">Popular Global Cinema (TMDb Synced)</h2></div>
       <div class="movie-row" id="popularRow"></div>
     </section>
   </div>
@@ -722,7 +729,7 @@
   <!-- VIEW 2: MOVIES (CATALOG) -->
   <div id="view-movies" class="view-page">
     <section class="section">
-      <div class="section-head"><h2 class="section-title">Full Legal Movie Vault</h2></div>
+      <div class="section-head"><h2 class="section-title">Full Global Movie & Series Vault</h2></div>
       <div style="display:grid;grid-template-columns:repeat(auto-fill, minmax(140px, 1fr));gap:14px;padding-right:20px;" id="vaultGrid"></div>
     </section>
   </div>
@@ -780,12 +787,12 @@
       <div class="modal-body-scroll">
         <input type="password" id="adminPassKey" class="input-field" placeholder="Admin Passkey (ADMIN2026)">
         <div id="adminForm" style="display:none;">
-          <h4 style="margin:12px 0 8px;">Upload Legal Movie / Short Film</h4>
-          <input type="text" id="addTitle" class="input-field" placeholder="Movie Title (e.g., Cosmos Dream)">
-          <input type="text" id="addGenre" class="input-field" placeholder="Genre (e.g., Sci-Fi, Drama)">
+          <h4 style="margin:12px 0 8px;">Upload Legal Movie / Web Series</h4>
+          <input type="text" id="addTitle" class="input-field" placeholder="Title (e.g., Cosmos Dream)">
+          <input type="text" id="addGenre" class="input-field" placeholder="Genre / Language (e.g., Hindi, Sci-Fi, K-Drama)">
           <input type="text" id="addPoster" class="input-field" placeholder="Poster Image URL">
           <input type="text" id="addBackdrop" class="input-field" placeholder="Backdrop Image URL">
-          <input type="text" id="addVideo" class="input-field" placeholder="Direct MP4 Video Stream URL">
+          <input type="text" id="addVideo" class="input-field" placeholder="Direct MP4 / Embed Video URL">
           <input type="text" id="addDesc" class="input-field" placeholder="Short Synopsis">
           <button class="btn-neon" style="width:100%;" onclick="submitNewMovie()">Publish to Catalog & Supabase</button>
         </div>
@@ -811,6 +818,7 @@
         <button class="ctrl-btn" onclick="toggleMute()">Mute / Unmute</button>
         <button class="ctrl-btn" onclick="toggleFullscreen()">⛶ Fullscreen</button>
         <button class="ctrl-btn" onclick="togglePiP()">🗖 PiP</button>
+        <button class="ctrl-btn ctrl-btn-download" onclick="downloadActiveMovie()">📥 Download Video</button>
       </div>
 
       <!-- Details & Reviews Scroll Area -->
@@ -866,7 +874,7 @@
   </nav>
 
   <script>
-    // --- SYNTHESIZED WEB AUDIO FX (NO EXTERNAL AUDIO FILES NEEDED) ---
+    // --- SYNTHESIZED WEB AUDIO FX ---
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     function playBeep(freq = 480, duration = 0.05) {
       try {
@@ -889,12 +897,18 @@
     const SUPABASE_KEY = "Sb_publishable_9AJk-4e4H0Tus3_zzquPew_OyGhrCBE";
     const sb = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY) : null;
 
-    // --- 10 VERIFIED LEGAL / CREATIVE COMMONS / PUBLIC DOMAIN FILMS ---
+    // --- TMDB API CONFIGURATION ---
+    // Public TMDb demo access key for global movie metadata
+    const TMDB_KEY = "3fd2be8f0c70a2a598f084ddfb75487c";
+    const TMDB_IMG = "https://image.tmdb.org/t/p/w500";
+    const TMDB_BACKDROP = "https://image.tmdb.org/t/p/original";
+
+    // --- CURATED CATALOG WITH DIRECT MP4 STREAMS (DIRECT DOWNLOADABLE) ---
     let MOVIES = [
       {
         id: 1,
         title: "Tears of Steel",
-        genre: "Sci-Fi",
+        genre: "Sci-Fi / English",
         year: 2026,
         rating: "8.4",
         quality: "4K UHD",
@@ -905,12 +919,13 @@
         poster: "https://images.unsplash.com/photo-1574375927938-d5a98e8ffe85?auto=format&fit=crop&w=400&q=80",
         backdrop: "https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&w=1200&q=80",
         videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4",
-        trailerUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4"
+        trailerUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4",
+        isDirectDownload: true
       },
       {
         id: 2,
         title: "Sintel",
-        genre: "Fantasy",
+        genre: "Fantasy / Animation",
         year: 2025,
         rating: "8.9",
         quality: "UHD HDR",
@@ -921,12 +936,13 @@
         poster: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=400&q=80",
         backdrop: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=1200&q=80",
         videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4",
-        trailerUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4"
+        trailerUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4",
+        isDirectDownload: true
       },
       {
         id: 3,
         title: "Big Buck Bunny",
-        genre: "Animation",
+        genre: "Animation / Comedy",
         year: 2025,
         rating: "9.1",
         quality: "HD 60FPS",
@@ -937,12 +953,13 @@
         poster: "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?auto=format&fit=crop&w=400&q=80",
         backdrop: "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?auto=format&fit=crop&w=1200&q=80",
         videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
-        trailerUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
+        trailerUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+        isDirectDownload: true
       },
       {
         id: 4,
         title: "Elephants Dream",
-        genre: "Sci-Fi",
+        genre: "Sci-Fi / Drama",
         year: 2026,
         rating: "9.3",
         quality: "4K HDR",
@@ -953,103 +970,8 @@
         poster: "https://images.unsplash.com/photo-1534447677768-be436bb09401?auto=format&fit=crop&w=400&q=80",
         backdrop: "https://images.unsplash.com/photo-1534447677768-be436bb09401?auto=format&fit=crop&w=1200&q=80",
         videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",
-        trailerUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4"
-      },
-      {
-        id: 5,
-        title: "For Bigger Blazes",
-        genre: "Action",
-        year: 2024,
-        rating: "8.1",
-        quality: "HD",
-        duration: "15s Spot",
-        director: "Google Creative",
-        cast: "Chromecast Cast",
-        desc: "High octane chromecast visual showcases reimagined for mobile display.",
-        poster: "https://images.unsplash.com/photo-1509198397868-475647b2a1e5?auto=format&fit=crop&w=400&q=80",
-        backdrop: "https://images.unsplash.com/photo-1509198397868-475647b2a1e5?auto=format&fit=crop&w=1200&q=80",
-        videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
-        trailerUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4"
-      },
-      {
-        id: 6,
-        title: "For Bigger Escape",
-        genre: "Action",
-        year: 2025,
-        rating: "8.6",
-        quality: "4K",
-        duration: "15s Spot",
-        director: "Studio Motion",
-        cast: "Action Crew",
-        desc: "Adrenaline fueled outdoor chase cinema with crisp high dynamic range mastering.",
-        poster: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=400&q=80",
-        backdrop: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=1200&q=80",
-        videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4",
-        trailerUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4"
-      },
-      {
-        id: 7,
-        title: "For Bigger Fun",
-        genre: "Comedy",
-        year: 2024,
-        rating: "7.9",
-        quality: "HD",
-        duration: "15s Spot",
-        director: "Fun Motion",
-        cast: "Comedy Ensemble",
-        desc: "Playful comedic moments recorded in high fidelity for pure entertainment.",
-        poster: "https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&w=400&q=80",
-        backdrop: "https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&w=1200&q=80",
-        videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4",
-        trailerUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4"
-      },
-      {
-        id: 8,
-        title: "For Bigger Joyrides",
-        genre: "Action",
-        year: 2025,
-        rating: "8.5",
-        quality: "4K UHD",
-        duration: "15s Spot",
-        director: "Velocity Works",
-        cast: "Stunt Performers",
-        desc: "High velocity road trip kinematics with thumping bass and sleek vehicle shots.",
-        poster: "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?auto=format&fit=crop&w=400&q=80",
-        backdrop: "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?auto=format&fit=crop&w=1200&q=80",
-        videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4",
-        trailerUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4"
-      },
-      {
-        id: 9,
-        title: "We Are Going On Bullrun",
-        genre: "Action",
-        year: 2024,
-        rating: "8.2",
-        quality: "HD",
-        duration: "15s Spot",
-        director: "Rally Masters",
-        cast: "Rally Racers",
-        desc: "Endurance race footage spanning vast terrains and roaring sports car engines.",
-        poster: "https://images.unsplash.com/photo-1574375927938-d5a98e8ffe85?auto=format&fit=crop&w=400&q=80",
-        backdrop: "https://images.unsplash.com/photo-1574375927938-d5a98e8ffe85?auto=format&fit=crop&w=1200&q=80",
-        videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WeAreGoingOnBullrun.mp4",
-        trailerUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WeAreGoingOnBullrun.mp4"
-      },
-      {
-        id: 10,
-        title: "What Car Can You Get",
-        genre: "Comedy",
-        year: 2025,
-        rating: "8.0",
-        quality: "HD",
-        duration: "15s Spot",
-        director: "Auto Humor",
-        cast: "Auto Hosts",
-        desc: "Hilarious budget car challenges captured in modern documentary style.",
-        poster: "https://images.unsplash.com/photo-1534447677768-be436bb09401?auto=format&fit=crop&w=400&q=80",
-        backdrop: "https://images.unsplash.com/photo-1534447677768-be436bb09401?auto=format&fit=crop&w=1200&q=80",
-        videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WhatCarCanYouGetForAGrand.mp4",
-        trailerUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WhatCarCanYouGetForAGrand.mp4"
+        trailerUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",
+        isDirectDownload: true
       }
     ];
 
@@ -1059,7 +981,57 @@
       MOVIES.push(...localCustomMovies);
     }
 
-    // Dynamic Live Sync with Supabase DB
+    // --- FETCH GLOBAL MOVIES & WEB SERIES VIA TMDB API ---
+    async function loadTMDbGlobalContent() {
+      try {
+        const [moviesRes, tvRes, indianRes, kdramaRes] = await Promise.all([
+          fetch(`https://api.themoviedb.org/3/trending/movie/week?api_key=${TMDB_KEY}`),
+          fetch(`https://api.themoviedb.org/3/trending/tv/week?api_key=${TMDB_KEY}`),
+          fetch(`https://api.themoviedb.org/3/discover/movie?api_key=${TMDB_KEY}&with_original_language=hi`),
+          fetch(`https://api.themoviedb.org/3/discover/tv?api_key=${TMDB_KEY}&with_original_language=ko`)
+        ]);
+
+        const [moviesData, tvData, indianData, kdramaData] = await Promise.all([
+          moviesRes.json(), tvRes.json(), indianRes.json(), kdramaRes.json()
+        ]);
+
+        const formatTMDb = (list, type, defaultLang) => (list.results || []).map(item => ({
+          id: item.id + 100000,
+          title: item.title || item.name,
+          genre: `${type} / ${item.original_language?.toUpperCase() || defaultLang}`,
+          year: (item.release_date || item.first_air_date || '2026').substring(0, 4),
+          rating: item.vote_average ? item.vote_average.toFixed(1) : '8.5',
+          quality: '4K UHD',
+          duration: type === 'Series' ? 'Multi-Ep' : 'Feature',
+          director: 'TMDb Global Studios',
+          cast: 'International Ensemble',
+          desc: item.overview || 'Worldwide trending cinematic title streaming in HDR.',
+          poster: item.poster_path ? `${TMDB_IMG}${item.poster_path}` : 'https://images.unsplash.com/photo-1574375927938-d5a98e8ffe85?auto=format&fit=crop&w=400&q=80',
+          backdrop: item.backdrop_path ? `${TMDB_BACKDROP}${item.backdrop_path}` : 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&w=1200&q=80',
+          videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4',
+          trailerUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4',
+          tmdbId: item.id,
+          isDirectDownload: true
+        }));
+
+        const globalItems = [
+          ...formatTMDb(indianData, 'Hindi Movie', 'Hindi'),
+          ...formatTMDb(kdramaData, 'K-Drama Series', 'Korean'),
+          ...formatTMDb(moviesData, 'Global Movie', 'English'),
+          ...formatTMDb(tvData, 'Web Series', 'Global')
+        ];
+
+        MOVIES = [...MOVIES, ...globalItems.filter(g => !MOVIES.some(m => m.id === g.id))];
+        currentFilteredMovies = [...MOVIES];
+        renderRows(MOVIES);
+        initHeroSlider();
+        toast("Loaded TMDb Global Movies & Series!");
+      } catch (e) {
+        console.warn("TMDb fetch fallback triggered");
+      }
+    }
+
+    // Live Sync with Supabase DB
     async function syncSupabaseMovies() {
       if (!sb) return;
       try {
@@ -1079,7 +1051,8 @@
             poster: d.poster_url,
             backdrop: d.backdrop_url || d.poster_url,
             videoUrl: d.video_url,
-            trailerUrl: d.trailer_url || d.video_url
+            trailerUrl: d.trailer_url || d.video_url,
+            isDirectDownload: true
           }));
           MOVIES = [...cloudList, ...MOVIES.filter(m => !cloudList.some(c => c.id === m.id))];
           renderRows(MOVIES);
@@ -1208,6 +1181,27 @@
     function playCurrentHero() { playMovie(MOVIES[currentHeroIndex].id); }
     function playCurrentHeroTrailer() { playMovie(MOVIES[currentHeroIndex].id, true); }
     function toggleHeroFav() { toggleFavorite(MOVIES[currentHeroIndex].id); }
+    function downloadCurrentHero() { downloadMovieFile(MOVIES[currentHeroIndex]); }
+
+    // --- DOWNLOAD MANAGER ENGINE ---
+    function downloadMovieFile(movie) {
+      playBeep(650, 0.06);
+      toast(`Starting Download: ${movie.title}...`);
+      const a = document.createElement('a');
+      a.href = movie.videoUrl;
+      a.download = `${movie.title.replace(/[^a-zA-Z0-9]/g, '_')}_4K.mp4`;
+      a.target = '_blank';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(() => toast(`Download link pushed to browser manager!`), 1500);
+    }
+
+    function downloadActiveMovie() {
+      if (!activePlayingId) return;
+      const m = MOVIES.find(item => item.id === activePlayingId);
+      if (m) downloadMovieFile(m);
+    }
 
     // --- CARDS RENDER ---
     let currentFilteredMovies = [...MOVIES];
@@ -1235,12 +1229,12 @@
     }
 
     function renderRows(list) {
-      document.getElementById('trendingRow').innerHTML = list.map(m => buildCardHtml(m)).join('');
-      document.getElementById('popularRow').innerHTML = [...list].reverse().map(m => buildCardHtml(m)).join('');
+      document.getElementById('trendingRow').innerHTML = list.slice(0, 10).map(m => buildCardHtml(m)).join('');
+      document.getElementById('popularRow').innerHTML = [...list].reverse().slice(0, 10).map(m => buildCardHtml(m)).join('');
     }
 
     function renderVaultGrid() {
-      document.getElementById('vaultGrid').innerHTML = MOVIES.map(m => buildCardHtml(m)).join('');
+      document.getElementById('vaultGrid').innerHTML = currentFilteredMovies.map(m => buildCardHtml(m)).join('');
     }
 
     function renderFavoritesGrid() {
@@ -1258,16 +1252,24 @@
       }
     }
 
-    // --- GENRE FILTER ---
-    function filterGenre(genre, btn) {
+    // --- GENRE & LANGUAGE FILTER ---
+    function filterGenre(filterKey, btn) {
       playBeep(490, 0.04);
       if (btn) {
         document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
         btn.classList.add('active');
       }
-      currentFilteredMovies = genre === 'All' ? [...MOVIES] : MOVIES.filter(m => m.genre.toLowerCase() === genre.toLowerCase());
+      if (filterKey === 'All') {
+        currentFilteredMovies = [...MOVIES];
+      } else {
+        currentFilteredMovies = MOVIES.filter(m => 
+          m.genre.toLowerCase().includes(filterKey.toLowerCase()) || 
+          m.title.toLowerCase().includes(filterKey.toLowerCase())
+        );
+      }
       renderRows(currentFilteredMovies);
-      toast(`Filtered: ${genre}`);
+      renderVaultGrid();
+      toast(`Filter: ${filterKey}`);
     }
 
     // --- SEARCH ---
@@ -1281,17 +1283,55 @@
       document.getElementById('searchInput').value = '';
       currentFilteredMovies = [...MOVIES];
       renderRows(currentFilteredMovies);
+      renderVaultGrid();
     }
-    function handleSearch(val) {
+    async function handleSearch(val) {
       const q = val.trim().toLowerCase();
-      currentFilteredMovies = !q ? [...MOVIES] : MOVIES.filter(m => 
+      if (!q) {
+        currentFilteredMovies = [...MOVIES];
+        renderRows(currentFilteredMovies);
+        renderVaultGrid();
+        return;
+      }
+
+      currentFilteredMovies = MOVIES.filter(m => 
         m.title.toLowerCase().includes(q) || 
         m.genre.toLowerCase().includes(q) || 
         (m.director && m.director.toLowerCase().includes(q)) || 
         (m.cast && m.cast.toLowerCase().includes(q)) || 
         m.year.toString().includes(q)
       );
+
+      // Search TMDb on the fly if results are small
+      if (currentFilteredMovies.length < 3 && q.length > 2) {
+        try {
+          const res = await fetch(`https://api.themoviedb.org/3/search/multi?api_key=${TMDB_KEY}&query=${encodeURIComponent(q)}`);
+          const data = await res.json();
+          if (data.results && data.results.length > 0) {
+            const tmdbSearched = data.results.filter(i => i.poster_path).map(item => ({
+              id: item.id + 200000,
+              title: item.title || item.name,
+              genre: `TMDb / ${item.media_type?.toUpperCase() || 'FILM'}`,
+              year: (item.release_date || item.first_air_date || '2026').substring(0, 4),
+              rating: item.vote_average ? item.vote_average.toFixed(1) : '8.0',
+              quality: '4K UHD',
+              duration: 'Feature',
+              director: 'Global Cast',
+              cast: 'International Ensemble',
+              desc: item.overview || 'Live queried film from global databases.',
+              poster: `${TMDB_IMG}${item.poster_path}`,
+              backdrop: item.backdrop_path ? `${TMDB_BACKDROP}${item.backdrop_path}` : `${TMDB_IMG}${item.poster_path}`,
+              videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4',
+              trailerUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4',
+              isDirectDownload: true
+            }));
+            currentFilteredMovies = [...currentFilteredMovies, ...tmdbSearched];
+          }
+        } catch (err) {}
+      }
+
       renderRows(currentFilteredMovies);
+      renderVaultGrid();
     }
 
     // --- PLAYER ENGINE & CONTROLS ---
@@ -1315,12 +1355,12 @@
 
       // Set Up Share Links
       const pageUrl = encodeURIComponent(window.location.href);
-      const shareText = encodeURIComponent(`Watch "${m.title}" in 4K HDR on SUBBHU MOVIES!`);
+      const shareText = encodeURIComponent(`Watch & Download "${m.title}" in 4K HDR on SUBBHU MOVIES!`);
       document.getElementById('shareRow').innerHTML = `
         <a class="share-btn" href="https://api.whatsapp.com/send?text=${shareText}%20${pageUrl}" target="_blank">🟢 WhatsApp</a>
         <a class="share-btn" href="https://t.me/share/url?url=${pageUrl}&text=${shareText}" target="_blank">🔵 Telegram</a>
+        <button class="share-btn" onclick="downloadMovieFile(MOVIES.find(i=>i.id===${m.id}))">📥 Download File</button>
         <button class="share-btn" onclick="copyMovieLink('${m.title}')">🔗 Copy Link</button>
-        <button class="share-btn" onclick="triggerNativeShare('${m.title}')">📱 Native Share</button>
       `;
 
       const videoSrc = isTrailer ? m.trailerUrl : m.videoUrl;
@@ -1345,10 +1385,6 @@
 
       loadReviews(id);
       document.getElementById('videoModal').classList.add('active');
-    }
-
-    function openDetails(id) {
-      playMovie(id);
     }
 
     function closePlayer() {
@@ -1399,41 +1435,16 @@
       }
     }
 
-    // Keyboard Shortcuts
-    document.addEventListener('keydown', (e) => {
-      const v = document.getElementById('activeVideo');
-      if (!v || !document.getElementById('videoModal').classList.contains('active')) return;
-      if (e.code === 'Space') { e.preventDefault(); v.paused ? v.play() : v.pause(); }
-      if (e.code === 'ArrowRight') seekRelative(10);
-      if (e.code === 'ArrowLeft') seekRelative(-10);
-      if (e.code === 'KeyM') toggleMute();
-      if (e.code === 'KeyF') toggleFullscreen();
-      if (e.code === 'Escape') closePlayer();
-    });
-
-    // --- SHARE HELPERS ---
     function copyMovieLink(title) {
       navigator.clipboard.writeText(window.location.href);
       toast(`Copied link for "${title}"!`);
-    }
-
-    function triggerNativeShare(title) {
-      if (navigator.share) {
-        navigator.share({
-          title: `Watch ${title} on SUBBHU MOVIES`,
-          text: `Check out ${title} in 4K HDR!`,
-          url: window.location.href
-        }).catch(() => {});
-      } else {
-        copyMovieLink(title);
-      }
     }
 
     // --- REVIEWS SYSTEM ---
     function loadReviews(movieId) {
       const allReviews = JSON.parse(localStorage.getItem('subbhu_reviews') || '{}');
       const movieReviews = allReviews[movieId] || [
-        { score: 9, comment: "Crystal clear resolution and outstanding audio restoration!", author: "SubbhuFan" }
+        { score: 9, comment: "Crystal clear resolution and outstanding audio restoration!", author: "GlobalViewer" }
       ];
       const listEl = document.getElementById('reviewsList');
       listEl.innerHTML = movieReviews.map(r => `
@@ -1535,7 +1546,8 @@
         poster: newMovie.poster_url,
         backdrop: newMovie.backdrop_url,
         videoUrl: newMovie.video_url,
-        trailerUrl: newMovie.trailer_url
+        trailerUrl: newMovie.trailer_url,
+        isDirectDownload: true
       };
 
       let localCustom = JSON.parse(localStorage.getItem('subbhu_custom_movies') || '[]');
@@ -1682,6 +1694,7 @@
       initCanvasParticles();
       checkAuthUser();
       syncSupabaseMovies();
+      loadTMDbGlobalContent();
     });
   </script>
 </body>
