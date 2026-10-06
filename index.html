@@ -3,17 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>SUBBHU MOVIES | Next-Gen Cinematic Neon Streaming</title>
+  <title>SUBBHU MOVIES | Cinematic Neon Streaming</title>
   
-  <!-- SEO & Social OpenGraph Metadata -->
-  <meta name="description" content="Watch high-definition open-source restored cinema, sci-fi epics, and animations with neon visuals.">
+  <meta name="description" content="Subbhu Movies - Curated high definition legal cinema, VFX restorations, and open animations.">
   <meta name="theme-color" content="#ff1e42">
-  <meta property="og:title" content="SUBBHU MOVIES - 4K Neon Streaming">
-  <meta property="og:description" content="Cinematic streaming experience on mobile with glassmorphic design and zero lag.">
-  <meta property="og:type" content="website">
   <link rel="manifest" href="manifest.json">
 
-  <!-- Supabase Client -->
+  <!-- Supabase CDN -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
@@ -52,6 +48,7 @@
       position: relative;
     }
 
+    /* Ambient Glow Canvas */
     #particle-canvas {
       position: fixed;
       inset: 0;
@@ -85,6 +82,7 @@
       100% { transform: translate(-20px, 30px) scale(0.95); }
     }
 
+    /* Header Nav */
     header {
       position: sticky;
       top: 0;
@@ -129,6 +127,7 @@
       border-color: var(--accent-cyan);
     }
 
+    /* Expandable Search Input */
     .search-wrap {
       position: relative;
       z-index: 99;
@@ -161,6 +160,7 @@
       font-size: 1.3rem;
     }
 
+    /* Views */
     .view-page { display: none; position: relative; z-index: 2; }
     .view-page.active { display: block; }
 
@@ -345,7 +345,7 @@
     }
     .movie-row::-webkit-scrollbar { display: none; }
 
-    /* Cards */
+    /* Movie Cards */
     .card {
       flex: 0 0 145px;
       background: var(--card-bg);
@@ -472,7 +472,8 @@
       padding: 10px 14px;
       background: rgba(10, 10, 18, 0.95);
       border-top: 1px solid var(--glass-border);
-      gap: 10px;
+      gap: 8px;
+      flex-wrap: wrap;
     }
     .ctrl-btn {
       background: rgba(255, 255, 255, 0.08);
@@ -579,7 +580,7 @@
     }
     .nav-btn svg { width: 22px; height: 22px; fill: currentColor; }
 
-    /* Toast System */
+    /* Toast Tray */
     .toast-tray {
       position: fixed;
       top: 18px;
@@ -760,7 +761,7 @@
           <input type="text" id="addBackdrop" class="input-field" placeholder="Backdrop Image URL">
           <input type="text" id="addVideo" class="input-field" placeholder="Direct MP4 Video Stream URL">
           <input type="text" id="addDesc" class="input-field" placeholder="Short Synopsis">
-          <button class="btn-neon" style="width:100%;" onclick="submitNewMovie()">Publish to Catalog</button>
+          <button class="btn-neon" style="width:100%;" onclick="submitNewMovie()">Publish to Catalog & Supabase</button>
         </div>
         <button class="btn-glass" id="verifyAdminBtn" style="width:100%;margin-top:8px;" onclick="verifyAdmin()">Unlock Studio</button>
       </div>
@@ -782,6 +783,8 @@
         <button class="ctrl-btn" onclick="seekRelative(10)">10s ⏩</button>
         <button class="ctrl-btn" onclick="cyclePlaybackRate()">Speed <span id="speedLabel">1x</span></button>
         <button class="ctrl-btn" onclick="toggleMute()">Mute / Unmute</button>
+        <button class="ctrl-btn" onclick="toggleFullscreen()">⛶ Fullscreen</button>
+        <button class="ctrl-btn" onclick="togglePiP()">🗖 PiP</button>
       </div>
 
       <!-- Details & Reviews Scroll Area -->
@@ -903,10 +906,38 @@
       }
     ];
 
-    // Local Storage dynamic additions
+    // Local Storage fallback & sync
     const localCustomMovies = JSON.parse(localStorage.getItem('subbhu_custom_movies') || '[]');
     if (localCustomMovies.length > 0) {
       MOVIES.push(...localCustomMovies);
+    }
+
+    // Dynamic Live Sync with Supabase DB
+    async function syncSupabaseMovies() {
+      if (!sb) return;
+      try {
+        const { data, error } = await sb.from('movies').select('*');
+        if (!error && data && data.length > 0) {
+          const cloudList = data.map(d => ({
+            id: d.id,
+            title: d.title,
+            genre: d.language || 'Cinema',
+            year: d.release_year || 2026,
+            rating: d.rating || '8.8',
+            quality: d.quality || 'HD',
+            duration: d.duration || 'Feature',
+            director: d.director || 'Curated',
+            desc: d.description || '',
+            poster: d.poster_url,
+            backdrop: d.backdrop_url || d.poster_url,
+            videoUrl: d.video_url,
+            trailerUrl: d.trailer_url || d.video_url
+          }));
+          MOVIES = [...cloudList, ...MOVIES.filter(m => !cloudList.some(c => c.id === m.id))];
+          renderRows(MOVIES);
+          initHeroSlider();
+        }
+      } catch (err) {}
     }
 
     // --- NAVIGATION TAB SWITCHER ---
@@ -1146,6 +1177,38 @@
       if (v) v.muted = !v.muted;
     }
 
+    function toggleFullscreen() {
+      const v = document.getElementById('activeVideo');
+      if (!v) return;
+      if (!document.fullscreenElement) {
+        v.requestFullscreen().catch(() => {});
+      } else {
+        document.exitFullscreen();
+      }
+    }
+
+    function togglePiP() {
+      const v = document.getElementById('activeVideo');
+      if (!v) return;
+      if (document.pictureInPictureElement) {
+        document.exitPictureInPicture();
+      } else if (document.pictureInPictureEnabled) {
+        v.requestPictureInPicture().catch(() => {});
+      }
+    }
+
+    // Keyboard Shortcuts
+    document.addEventListener('keydown', (e) => {
+      const v = document.getElementById('activeVideo');
+      if (!v || !document.getElementById('videoModal').classList.contains('active')) return;
+      if (e.code === 'Space') { e.preventDefault(); v.paused ? v.play() : v.pause(); }
+      if (e.code === 'ArrowRight') seekRelative(10);
+      if (e.code === 'ArrowLeft') seekRelative(-10);
+      if (e.code === 'KeyM') toggleMute();
+      if (e.code === 'KeyF') toggleFullscreen();
+      if (e.code === 'Escape') closePlayer();
+    });
+
     // --- REVIEWS SYSTEM ---
     function loadReviews(movieId) {
       const allReviews = JSON.parse(localStorage.getItem('subbhu_reviews') || '{}');
@@ -1200,7 +1263,7 @@
         toast("Incorrect Passkey!");
       }
     }
-    function submitNewMovie() {
+    async function submitNewMovie() {
       const title = document.getElementById('addTitle').value.trim();
       const genre = document.getElementById('addGenre').value.trim();
       const poster = document.getElementById('addPoster').value.trim();
@@ -1212,32 +1275,55 @@
         return toast("Title, Poster URL & Video URL are required!");
       }
 
+      const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-');
       const newMovie = {
-        id: Date.now(),
         title: title,
+        slug: slug + '-' + Date.now(),
+        description: desc || "Premium user published film.",
+        poster_url: poster,
+        backdrop_url: backdrop || poster,
+        video_url: video,
+        trailer_url: video,
+        release_year: 2026,
+        rating: 9.0,
+        quality: "4K UHD",
+        duration: "Restored",
+        director: "Subbhu Studio",
+        status: "published"
+      };
+
+      // Direct write to Supabase if available
+      if (sb) {
+        const { error } = await sb.from('movies').insert([newMovie]);
+        if (!error) toast("Synced to Supabase Cloud Database!");
+      }
+
+      const clientMovie = {
+        id: Date.now(),
+        title: newMovie.title,
         genre: genre || "Cinema",
-        year: 2026,
+        year: newMovie.release_year,
         rating: "9.0",
         quality: "4K UHD",
         duration: "Restored",
         director: "Subbhu Studio",
-        desc: desc || "Premium user published film.",
-        poster: poster,
-        backdrop: backdrop || poster,
-        videoUrl: video,
-        trailerUrl: video
+        desc: newMovie.description,
+        poster: newMovie.poster_url,
+        backdrop: newMovie.backdrop_url,
+        videoUrl: newMovie.video_url,
+        trailerUrl: newMovie.trailer_url
       };
 
       let localCustom = JSON.parse(localStorage.getItem('subbhu_custom_movies') || '[]');
-      localCustom.push(newMovie);
+      localCustom.push(clientMovie);
       localStorage.setItem('subbhu_custom_movies', JSON.stringify(localCustom));
 
-      MOVIES.push(newMovie);
+      MOVIES.unshift(clientMovie);
       currentFilteredMovies = [...MOVIES];
       renderRows(MOVIES);
       initHeroSlider();
       closeAdminModal();
-      toast(`Published "${title}" to your catalog!`);
+      toast(`Published "${title}" live!`);
     }
 
     // --- NATIVE SHARE ---
@@ -1316,7 +1402,7 @@
       setTimeout(() => t.remove(), 2600);
     }
 
-    // --- AFTER EFFECTS FLOATING PARTICLES CANVAS ---
+    // --- CANVAS PARTICLES ---
     function initCanvasParticles() {
       const canvas = document.getElementById('particle-canvas');
       const ctx = canvas.getContext('2d');
@@ -1359,19 +1445,20 @@
       draw();
     }
 
-    // --- PWA SERVICE WORKER REGISTRATION ---
+    // PWA Service Worker
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('./service-worker.js').catch(() => {});
       });
     }
 
-    // --- INITIALIZE APPLICATION ---
+    // Bootstrap
     window.addEventListener('DOMContentLoaded', () => {
       initHeroSlider();
       renderRows(MOVIES);
       initCanvasParticles();
       checkAuthUser();
+      syncSupabaseMovies();
     });
   </script>
 </body>
