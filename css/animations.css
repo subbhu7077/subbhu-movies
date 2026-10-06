@@ -1,0 +1,90 @@
+/* --- CINEMATIC MOTION ENGINE --- */
+@keyframes neonPulseRed {
+  0%, 100% { box-shadow: 0 0 15px rgba(255, 30, 66, 0.4), 0 0 30px rgba(255, 30, 66, 0.2); }
+  50% { box-shadow: 0 0 25px rgba(255, 30, 66, 0.8), 0 0 50px rgba(255, 30, 66, 0.4); }
+}
+
+@keyframes neonPulseCyan {
+  0%, 100% { box-shadow: 0 0 12px rgba(0, 242, 254, 0.35), 0 0 25px rgba(0, 242, 254, 0.15); }
+  50% { box-shadow: 0 0 22px rgba(0, 242, 254, 0.75), 0 0 45px rgba(0, 242, 254, 0.35); }
+}
+
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes floatParticles {
+  0% { transform: translateY(0px) rotate(0deg); opacity: 0.3; }
+  50% { transform: translateY(-25px) rotate(180deg); opacity: 0.7; }
+  100% { transform: translateY(0px) rotate(360deg); opacity: 0.3; }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes cardEntrance {
+  from { opacity: 0; transform: translateY(20px) scale(0.96); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* Background Ambient Orbs */
+.ambient-glow-wrapper {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.ambient-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(90px);
+  opacity: 0.35;
+  animation: floatParticles 18s ease-in-out infinite alternate;
+}
+
+.orb-red {
+  width: 320px;
+  height: 320px;
+  background: radial-gradient(circle, #ff1e42, transparent 70%);
+  top: -80px;
+  right: -50px;
+}
+
+.orb-purple {
+  width: 380px;
+  height: 380px;
+  background: radial-gradient(circle, #7928ca, transparent 70%);
+  top: 40%;
+  left: -100px;
+  animation-duration: 22s;
+}
+
+.orb-cyan {
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, #00f2fe, transparent 70%);
+  bottom: 5%;
+  right: -60px;
+  animation-duration: 16s;
+}
+
+/* Glowing Neon Elements */
+.neon-glow-red {
+  animation: neonPulseRed 3s infinite ease-in-out;
+}
+
+.neon-glow-cyan {
+  animation: neonPulseCyan 3.5s infinite ease-in-out;
+}
+
+.skeleton-loading {
+  background: linear-gradient(90deg, #171725 25%, #232338 50%, #171725 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
